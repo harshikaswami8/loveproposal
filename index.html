@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Will you be mine? ❤️</title>
+  <style>
+    :root{ --bg:#0f1022; --card:#121224; --accent:#ff6b81; --muted:#bfc3d6 }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+    body{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0b1226 0%, #11203a 100%);color:var(--muted)}
+
+    .card{width:92%;max-width:820px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:20px;padding:36px;box-shadow:0 10px 40px rgba(4,6,23,0.6);border:1px solid rgba(255,255,255,0.03);position:relative;overflow:hidden}
+
+    header{display:flex;gap:16px;align-items:center}
+    .heart{width:72px;height:72px;background:radial-gradient(circle at 35% 30%, #fff6f8, #ffd9e0 10%, transparent 40%), linear-gradient(135deg,#ff9bb3,#ff6b81);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;color:white;box-shadow:0 6px 20px rgba(255,107,129,0.18)}
+    h1{margin:0;font-size:28px;color:#ffffff}
+    p.lead{margin:8px 0 22px;color:var(--muted);line-height:1.4}
+
+    .question{font-size:20px;margin-bottom:10px}
+    .cta{display:flex;gap:14px;align-items:center}
+    button{padding:12px 22px;border-radius:12px;border:0;cursor:pointer;font-weight:600;font-size:16px}
+    .btn-yes{background:linear-gradient(90deg,#ff8aa0,#ff5c78);color:white;box-shadow:0 8px 30px rgba(255,92,120,0.18)}
+    .btn-no{background:transparent;color:white;border:1px solid rgba(255,255,255,0.06)}
+
+    .notes{margin-top:18px;color:#aeb4c8;font-size:13px}
+
+    .accepted-overlay{position:absolute;inset:0;background:linear-gradient(90deg, rgba(255,107,129,0.06), rgba(255,200,220,0.04));display:flex;align-items:center;justify-content:center;flex-direction:column;backdrop-filter: blur(3px);opacity:0;pointer-events:none;transition:all .5s cubic-bezier(.2,.9,.2,1)}
+    .accepted-overlay.show{opacity:1;pointer-events:auto}
+    .accepted-card{background:linear-gradient(180deg,#fff 0%, #ffeef2 100%);border-radius:16px;padding:28px;box-shadow:0 10px 40px rgba(8,8,20,0.35);text-align:center;color:#1a1424;max-width:500px}
+    .accepted-card h2{margin:0 0 8px}
+    .accepted-card p{margin:0 0 14px;color:#3b3340}
+    .confetti-canvas{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+
+    @media (max-width:520px){.heart{width:56px;height:56px;font-size:28px}.card{padding:20px}.cta{flex-direction:column;align-items:stretch}button{width:100%}}
+  </style>
+</head>
+<body>
+  <div class="card" role="dialog" aria-labelledby="title">
+    <canvas class="confetti-canvas" aria-hidden="true"></canvas>
+    <header>
+      <div class="heart">❤️</div>
+      <div>
+        <h1 id="title">A small question...</h1>
+        <p class="lead">I wrote this little page because there’s something I want to ask you. Click the button and see what happens 😊</p>
+      </div>
+    </header>
+
+    <main>
+      <div class="question" id="question">Will you be mine?</div>
+      <div class="cta">
+        <button class="btn-yes" id="yesBtn">Yes, always ✨</button>
+        <button class="btn-no" id="noBtn" aria-label="No button">No</button>
+      </div>
+      <div class="notes">(Hint: this page is made so the answer will always be yes — try the buttons!)</div>
+    </main>
+
+    <div class="accepted-overlay" id="accepted">
+      <div class="accepted-card" role="status">
+        <h2>She said...</h2>
+        <p id="resultText">YES! 💖</p>
+        <p>Let's make something beautiful together.</p>
+        <audio id="bgMusic" loop autoplay>
+          <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        </audio>
+        <button id="reset" style="margin-top:12px;padding:10px 16px;border-radius:10px;border:0;background:#121224;color:#fff;cursor:pointer">Restart</button>
+        <a id="downloadBtn" download="LoveProposal.html" style="display:block;margin-top:16px;color:#ff5c78;font-weight:bold;cursor:pointer;text-decoration:none">💌 Download this page</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const accepted = document.getElementById('accepted');
+    const resultText = document.getElementById('resultText');
+    const reset = document.getElementById('reset');
+    const canvas = document.querySelector('.confetti-canvas');
+    const bgMusic = document.getElementById('bgMusic');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    function accept(reason){
+      resultText.textContent = 'YES! ' + (reason || '💖');
+      accepted.classList.add('show');
+      launchConfetti();
+      bgMusic.play();
+    }
+
+    yesBtn.addEventListener('click', () => accept('You clicked yes ❤️'));
+    noBtn.addEventListener('mouseover', moveAway);
+    noBtn.addEventListener('click', () => accept('You clicked no... but I changed it 😉'));
+    noBtn.addEventListener('focus', moveAway);
+
+    document.querySelector('.card').addEventListener('click', (e) => {
+      if(e.target === reset || e.target === downloadBtn) return;
+      if(!accepted.classList.contains('show')){
+        setTimeout(()=>accept('You clicked the page — answer recorded ✨'), 150);
+      }
+    });
+
+    reset.addEventListener('click', () => {
+      accepted.classList.remove('show');
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+      downloadBtn.href = URL.createObjectURL(blob);
+    });
+
+    function moveAway(){
+      const card = document.querySelector('.card');
+      const rect = card.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+      const padding = 20;
+      const maxLeft = rect.width - btnRect.width - padding;
+      const maxTop = rect.height - btnRect.height - padding;
+      const left = Math.max(padding, Math.random() * maxLeft);
+      const top = Math.max(padding + 110, Math.random() * maxTop);
+      noBtn.style.position = 'absolute';
+      noBtn.style.left = left + 'px';
+      noBtn.style.top = top + 'px';
+      noBtn.style.transition = 'left .25s ease, top .25s ease';
+    }
+
+    const ctx = canvas.getContext('2d');
+    let confettiPieces = [];
+    function resizeCanvas(){
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function launchConfetti(){
+      confettiPieces = [];
+      const count = 80;
+      for(let i=0;i<count;i++){
+        confettiPieces.push({
+          x: Math.random()*canvas.width,
+          y: -20 - Math.random()*canvas.height/2,
+          r: 6 + Math.random()*8,
+          d: 1 + Math.random()*3,
+          tilt: Math.random()*10 - 10,
+          tiltAngleIncrement: 0.07 + Math.random()*0.07,
+          color: `hsl(${Math.random()*60 + 330}, 85%, 60%)`
+        });
+      }
+      requestAnimationFrame(updateConfetti);
+      setTimeout(()=>{ confettiPieces = []; clearCanvas(); }, 7000);
+    }
+
+    function clearCanvas(){ ctx.clearRect(0,0,canvas.width,canvas.height); }
+
+    function updateConfetti(){
+      clearCanvas();
+      for(let i=0;i<confettiPieces.length;i++){
+        const p = confettiPieces[i];
+        p.tilt += p.tiltAngleIncrement;
+        p.x += Math.sin(p.d) + Math.cos(p.tilt) * 0.5;
+        p.y += Math.cos(p.d) + 2 + p.r*0.03;
+        ctx.beginPath();
+        ctx.fillStyle = p.color;
+        ctx.ellipse(p.x, p.y, p.r, p.r/1.6, p.tilt, 0, Math.PI*2);
+        ctx.fill();
+      }
+      if(confettiPieces.length) requestAnimationFrame(updateConfetti);
+    }
+
+    document.addEventListener('keydown', (e)=>{
+      if(e.key.toLowerCase()==='y' || e.key === 'Enter') accept('Keyboard yes ✨');
+    });
+
+    setTimeout(()=>{
+      if(!accepted.classList.contains('show')) moveAway();
+    }, 800);
+
+  </script>
+</body>
+</html>
